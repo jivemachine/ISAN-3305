@@ -102,7 +102,8 @@ def main():
 
 
 
-main()
+if __name__ == "__main__":
+    main()
 #get_positive_non_input()
 #display_pattern()
 #accumulator()
