@@ -51,10 +51,59 @@ def display_pattern():
 def get_positive_non_input():
     while True:
         try:
+            user_input = float(input("I need a positive non-zero number: "))
+            if user_input > 0:
+                return user_input
+            else:
+                print("enter number > 0")
+
         except ValueError:
             print("invalid input, please enter a valid number")
 
 
+
+def how_many_days():
+    days = int(input("how many days are you collecting bugs?"))
+    return days
+
+
+def collect_bugs(day_num):
+    while True:
+        try:
+            bugs = float(input("Enter # of bugs collected: "))
+            if bugs > 0:
+                return bugs
+            else:
+                print("enter more than 0 bugs")
+        except ValueError:
+            print("invalid input, please enter a valid number")
+
+
+def display_total_bugs(bugs, days):
+    print(f"Collected {bugs} bugs in {days} days")
+
+
+def calc_bugs():
+    total_bugs = 0
+    days = how_many_days()
+    for day in range(1, days+1):
+        bugs_collected = collect_bugs(day)
+        total_bugs += bugs_collected
+        
+    display_total_bugs(total_bugs, days)
+        
+    
+    
+    
+
+def main():
+    print("Bug Collector", end="\n")
+    calc_bugs()
+
+
+
+main()
+#get_positive_non_input()
 #display_pattern()
 #accumulator()
 #display_num()
