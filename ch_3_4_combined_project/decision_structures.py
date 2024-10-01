@@ -17,9 +17,9 @@ def register_participant():
         
 def validate_role(role):
     # globals for tracking registration spread
-    global student
+    global students
     global faculty
-    global guest
+    global guests
     
     # cleaning role string
     role = role.lower().strip()
@@ -29,11 +29,11 @@ def validate_role(role):
     
     if role in roles:
         if role == "student":
-            student += 1
+            students += 1
         elif role == "faculty":
             faculty += 1
         else:
-            guest += 1
+            guests += 1
             
         return True
     
