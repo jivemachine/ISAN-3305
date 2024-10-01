@@ -1,5 +1,4 @@
-number_of_registrants = 0
-MAX_OCCUPANCY = 100
+import global_variables
 
 def register_participant():
     # global variables used
