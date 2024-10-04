@@ -18,6 +18,7 @@ def register_participant():
         
     if role == "guest":
         while role == "guest" and  on_guest_list == False:
+            gv.guests -= 1
             print("Invalid registration attempt, either role is not valid or user is not on guest list.")
             user_name = str(input("Enter user name: "))
             role = str(input("What is your role: (student, faculty, guest): "))
@@ -167,9 +168,9 @@ def display_registration_stats(student_count, faculty_count, guest_count):
     
     print("| Category | Registrants | Percentage |")
     print("| -------- | ----------- | ---------- |")
-    print(f"| Students | {student_count} | {student_count/total_attendance} |")
-    print(f"| Faculty | {faculty_count} | {faculty_count/total_attendance} |")
-    print(f"| Guests | {guest_count} | {guest_count/total_attendance} |")
+    print(f"| Students | {student_count} | {(student_count/total_attendance) * 100}% |")
+    print(f"| Faculty | {faculty_count} | {(faculty_count/total_attendance) * 100}% |")
+    print(f"| Guests | {guest_count} | {(guest_count/total_attendance) * 100}% |")
     
 
  
