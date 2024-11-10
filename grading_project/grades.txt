@@ -1,8 +1,0 @@
-Alice: 65
-Bob: 35
-Charles: 43
-James: 56
-Dorothy: 99
-Megan: 64
-Oliver: 57
-Samantha: 71
