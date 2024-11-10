@@ -89,7 +89,12 @@ plt.xlabel("X-axis")
 plt.ylabel("Y-axis")
 plt.show()
 
+my_list = [2,4,5]
 
+
+with open('output.txt', 'w') as file:
+    for row in matrix:
+        file.write(','.join(map(str, row)) + '\n')
 
 
 # import pandas as pd
