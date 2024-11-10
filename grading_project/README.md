@@ -4,7 +4,6 @@ In this project you will create a python program that manages student grades. Yo
 ## Project requirements
 1.	File Management
     a.	Use a file called grades.txt to store student names and grades. 
-    
     b.	Implement options to create, read, append, and update data in the file.
 2.	Functions
     a.	Each functionality should be implemented in its own function.
