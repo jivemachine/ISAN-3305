@@ -1,6 +1,7 @@
 # Imports
 import random as r
 
+# STEP 1
 # function generates a random number between 0-100 and returns
 # the number to bs used by the generate students
 # function
@@ -37,7 +38,8 @@ def overwrite_txt_file(student_grades):
 def init_file_with_random_grades():
     student_list = generate_students()
     overwrite_txt_file(student_list)
-            
+  
+# STEP 2          
 # function reads the grades.txt file and displays the students names
 # as well as their grades from the file
 def display_grades_from_file():
@@ -59,6 +61,7 @@ def display_grades_from_file():
         print("No grades found.")
         return # return to main function
 
+# STEP 3
 # function asks user to input a student name and grade
 # and validtes the inputs to ensure referential integrity within the file
 def get_user_new_student_and_grade():
