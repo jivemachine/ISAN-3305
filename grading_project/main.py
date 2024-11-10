@@ -59,9 +59,63 @@ def display_grades_from_file():
         print("No grades found.")
         return # return to main function
 
+# function asks user to input a student name and grade
+# and validtes the inputs to ensure referential integrity within the file
+def get_user_new_student_and_grade():
+    # get user input for student name
+    student_name = input("Enter student name: ")
+    # sanitize string input by removing leading and trailing white spaces
+    student_name = student_name.strip()
+    # capitalize first letter of string
+    student_name = student_name.capitalize()
+    # validate that input is a string
+    if not student_name.isalpha():
+        print("Student name is invalid.")
+        return None, None # if string is not valid return None, None to append_student_grades function
+    
+    # get user grade for student
+    student_grade = input("Enter student grade: ")
+    # sanitize integer input by removing leading and trailing white spaces
+    student_grade = student_grade.strip()
+    # validate if student grade is a number
+    try:
+        student_grade = int(student_grade)
+    except ValueError:
+        print("Grade must be a number.")
+        return None, None # if grade is not valid return None, None to append_student_grades function
+    
+    return student_name, student_grade # return student name and grade to append_student_grades function
+    
+
+# function inputs a student and grade append single student and grade to existing grades.txt file
+def append_student_grades(student_name, student_grade):
+    file = "grades.txt"
+    with open(file, "a") as f:
+        f.write(f"{student_name}: {student_grade}\n")
+
+
+    
+# function allows user to add new students and their grades to the grades.txt file
+def append_new_grades_to_file():
+    # ask user to input student name and grade to append to file
+    student, grade = get_user_new_student_and_grade()
+    # if student and grade are not None append student and grade to file
+    if student and grade:
+        append_student_grades(student, grade)
+    # else:
+        print("Student and grade not added. Invalid input. Please try again.")
+        return # return to main function
+    
+    
+
 def main():
+    # initialize project by generating students and their grades
+    # and overwriting the grades.txt file with the students & their grades
     init_file_with_random_grades()
     display_grades_from_file()
+    
+    append_new_grades_to_file()
+    
     
     
     
