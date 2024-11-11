@@ -192,6 +192,34 @@ def update_student_grade():
     student_grades[student - 1] = (student_grades[student - 1][0], grade)
     # overwrite the grades.txt file with the updated student grade
     overwrite_txt_file(student_grades)
+    
+# STEP 5
+# function sorts grades in ascending order using basic sorting algorithm
+def sorter(student_grades):
+    for i in range(len(student_grades)): # gets each individual student tuple from student_grades list
+        for j in range(len(student_grades) - 1): # gets the grades from the student tuple
+            if student_grades[j][1] < student_grades[j + 1][1]: # compares grade of student to grade of next student
+                student_grades[j], student_grades[j+1] = student_grades[j+1], student_grades[j] # swaps the students if the grade is less than the next students grade
+    # return the sorted student grades
+    return student_grades
+
+# function displays the students and their grades
+def display_data(student_grades):
+    for student in student_grades:
+        print(student)
+
+# function sorts grades in descending order in grades.txt file
+def sort_grades_descending():
+    # get student data from read_grades_from_file_funcxtion from step 4
+    student_grades = read_grades_from_file()
+    # sort the students by grade in descending order
+    student_grades = sorter(student_grades)
+    # display grades to user
+    display_data(student_grades)
+    return 
+            
+            
+        
 
 def main():
     # initialize project by generating students and their grades
@@ -199,9 +227,11 @@ def main():
     init_file_with_random_grades()
     display_grades_from_file()
     
-    append_new_grades_to_file()
-    update_student_grade()
+    # append_new_grades_to_file()
+    # update_student_grade()
     
+    
+    sort_grades_descending()
     
     
     
