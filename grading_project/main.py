@@ -80,12 +80,17 @@ def get_user_new_student_and_grade():
     student_grade = input("Enter student grade: ")
     # sanitize integer input by removing leading and trailing white spaces
     student_grade = student_grade.strip()
-    # validate if student grade is a number
+    # validate if student grade is a number & between 0-100
     try:
         student_grade = int(student_grade)
+        if student_grade < 0 or student_grade > 100:
+            print("Grade must be between 0-100.")
+            print("Please try again.")
+            return None, None # if grade is not valid return None, None to append_student_grades function
     except ValueError:
         print("Grade must be a number.")
         return None, None # if grade is not valid return None, None to append_student_grades function
+    
     
     return student_name, student_grade # return student name and grade to append_student_grades function
     
@@ -169,9 +174,13 @@ def get_new_grade():
     student_grade = input("Enter new student grade: ")
     # sanitize integer input by removing leading and trailing white spaces
     student_grade = student_grade.strip()
-    # validate if student grade is a number
+    # validate if student grade is a number & in the range of 0-100
     try:
         student_grade = int(student_grade)
+        if student_grade < 0 or student_grade > 100:
+            print("Grade must be between 0-100.")
+            print("Please try again.")
+            return None # If grade is not valid return None to update_student_grade function
     except ValueError:
         print("Grade must be a number.")
         return None # if grade is not valid return None to update_student_grade function
@@ -214,8 +223,8 @@ def sorter(student_grades):
 
 # function displays the students and their grades
 def display_data(student_grades):
-    for student in student_grades:
-        print(student)
+    for students in student_grades:
+        print(f"{students[0]} - {students[1]}")
 
 # function sorts grades in descending order in grades.txt file
 def sort_grades_descending():
@@ -285,6 +294,7 @@ def clear_terminal():
 # function is the main function that runs the application
 def main_menu():    
     # main menu loop
+    clear_terminal() # clear terminal screen
     while True:
         # display the main menu
         main_menu_UI()
@@ -292,6 +302,7 @@ def main_menu():
         user_input = get_user_input()
         # if user input is not valid return to main menu
         if user_input is None:
+            clear_terminal() # clear terminal screen
             continue
         # if user input is 1 initialize data
         if user_input == 1:
