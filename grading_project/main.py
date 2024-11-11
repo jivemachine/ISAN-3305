@@ -262,20 +262,42 @@ def get_user_input():
         return None
     return user_input # return user input to main function
 
-
+# function is the main function that runs the application
+def main_menu():    
+    # main menu loop
+    while True:
+        # display the main menu
+        main_menu_UI()
+        # get user input for the main menu
+        user_input = get_user_input()
+        # if user input is not valid return to main menu
+        if user_input is None:
+            continue
+        # if user input is 1 initialize data
+        if user_input == 1:
+            init_file_with_random_grades()
+        # if user input is 2 view grades
+        elif user_input == 2:
+            display_grades_from_file()
+        # if user input is 3 add grade
+        elif user_input == 3:
+            append_new_grades_to_file()
+        # if user input is 4 update grade
+        elif user_input == 4:
+            update_student_grade()
+        # if user input is 5 sort grades
+        elif user_input == 5:
+            sort_grades_descending()
+        # if user input is 6 display highest and lowest grades
+        elif user_input == 6:
+            display_highest_and_lowest_grades()
+        # if user input is 7 exit application
+        elif user_input == 7:
+            break
 
 def main():
-    # initialize project by generating students and their grades
-    # and overwriting the grades.txt file with the students & their grades
-    init_file_with_random_grades()
-    display_grades_from_file()
-    
-    # append_new_grades_to_file()
-    # update_student_grade()
-    
-    
-    # sort_grades_descending()
-    display_highest_and_lowest_grades()
+    # main menu function runs the whole script
+    main_menu()
     
     
     
