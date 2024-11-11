@@ -243,6 +243,25 @@ def main_menu_UI():
     print("6. Display Highest and Lowest grades")
     print("7. Exit application")
     
+# function gets user input for the main menu
+def get_user_input():
+    # get user input for the main menu
+    user_input = input("Enter number for option: ")
+    # sanitize string input by removing leading and trailing white spaces
+    user_input = user_input.strip()
+    # validate if user input is a number
+    try:
+        user_input = int(user_input)
+    except ValueError:
+        print("Option selected is invalid.")
+        return None # if user input is not valid return None to main function
+    
+    # validate if user input is within the range of the options
+    if user_input < 1 or user_input > 7:
+        print("Option selected is invalid.")
+        return None
+    return user_input # return user input to main function
+
 
 
 def main():
