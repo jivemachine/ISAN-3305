@@ -116,19 +116,24 @@ def read_grades_from_file():
     # file name that contains students and grade data
     file = "grades.txt"
     # read the file and store contents in a list
-    with open(file, "r") as f:
-        # read the contents of the file
-        data = f.readlines()
-        # create an empty list to store the students and their grades
-        student_grades = []
-        # go through data and split the student name and grade
-        for line in data:
-            # split the line into student name and grade
-            name, grade = line.split(":")
-            # append the student name and grade to the list
-            student_grades.append((name.strip(), int(grade.strip())))
-        # return the list of students and their grades
-        return student_grades
+    try:
+        with open(file, "r") as f:
+            # read the contents of the file
+            data = f.readlines()
+            # create an empty list to store the students and their grades
+            student_grades = []
+            # go through data and split the student name and grade
+            for line in data:
+                # split the line into student name and grade
+                name, grade = line.split(":")
+                # append the student name and grade to the list
+                student_grades.append((name.strip(), int(grade.strip())))
+            # return the list of students and their grades
+            return student_grades
+    # if file does not exist print error message
+    except FileNotFoundError:
+        print("No grades found.")
+        return None
    
 # function inputs a list of students and their grades and sorts 
 # them by the name alphabetically as a numbered menu   
@@ -175,7 +180,11 @@ def get_new_grade():
 
 # function updates the grade of a student in the grades.txt file
 def update_student_grade():
+    # get grades from grades.txt file
     student_grades = read_grades_from_file()
+    # if grades are not found return to main_menu
+    if student_grades is None:
+        return 
     # display the students and their grades
     display_sorted_grades(student_grades)
     # get the student to update
@@ -212,6 +221,9 @@ def display_data(student_grades):
 def sort_grades_descending():
     # get student data from read_grades_from_file_funcxtion from step 4
     student_grades = read_grades_from_file()
+    # if no grades are found return to main menu
+    if student_grades is None:
+        return 
     # sort the students by grade in descending order
     student_grades = sorter(student_grades)
     # display grades to user
@@ -224,6 +236,9 @@ def sort_grades_descending():
 def display_highest_and_lowest_grades():
     # get student data from read_grades_from_file function from step 4
     student_grades = read_grades_from_file()
+    # if no grades are found return to main menu
+    if student_grades is None:
+        return
     # sort the students by grade in descending order using sorter from step 5
     student_grades = sorter(student_grades)
     # display the highest and lowest grades
@@ -262,6 +277,11 @@ def get_user_input():
         return None
     return user_input # return user input to main function
 
+# function clears terminal to keep the application interface clean
+def clear_terminal():
+    print("\033[H\033[J")
+
+
 # function is the main function that runs the application
 def main_menu():    
     # main menu loop
@@ -275,24 +295,31 @@ def main_menu():
             continue
         # if user input is 1 initialize data
         if user_input == 1:
+            clear_terminal() # clear terminal screen
             init_file_with_random_grades()
         # if user input is 2 view grades
         elif user_input == 2:
+            clear_terminal() # clear terminal screen
             display_grades_from_file()
         # if user input is 3 add grade
         elif user_input == 3:
+            clear_terminal() # clear terminal screen
             append_new_grades_to_file()
         # if user input is 4 update grade
         elif user_input == 4:
+            clear_terminal() # clear terminal screen
             update_student_grade()
         # if user input is 5 sort grades
         elif user_input == 5:
+            clear_terminal() # clear terminal screen
             sort_grades_descending()
         # if user input is 6 display highest and lowest grades
         elif user_input == 6:
+            clear_terminal() # clear terminal screen
             display_highest_and_lowest_grades()
         # if user input is 7 exit application
         elif user_input == 7:
+            print("Thank you for using the application!")
             break
 
 def main():
