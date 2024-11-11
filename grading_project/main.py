@@ -218,7 +218,18 @@ def sort_grades_descending():
     display_data(student_grades)
     return 
             
-            
+  
+# STEP 6
+# function displays the highest and lowest grades in grades.txt file
+def display_highest_and_lowest_grades():
+    # get student data from read_grades_from_file function from step 4
+    student_grades = read_grades_from_file()
+    # sort the students by grade in descending order using sorter from step 5
+    student_grades = sorter(student_grades)
+    # display the highest and lowest grades
+    print(f"Highest grade: {student_grades[0][0]} - {student_grades[0][1]}") # highest grade will be in first index
+    print(f"Lowest grade: {student_grades[-1][0]} - {student_grades[-1][1]}") # lowest grade will be in last index
+    return         
         
 
 def main():
@@ -231,7 +242,8 @@ def main():
     # update_student_grade()
     
     
-    sort_grades_descending()
+    # sort_grades_descending()
+    display_highest_and_lowest_grades()
     
     
     
