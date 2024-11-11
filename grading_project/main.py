@@ -230,7 +230,20 @@ def display_highest_and_lowest_grades():
     print(f"Highest grade: {student_grades[0][0]} - {student_grades[0][1]}") # highest grade will be in first index
     print(f"Lowest grade: {student_grades[-1][0]} - {student_grades[-1][1]}") # lowest grade will be in last index
     return         
-        
+      
+      
+# STEP 7
+# function is a main menu that displays the options to the user
+def main_menu_UI():  
+    print("1. Initialize data")
+    print("2. View Grades")
+    print("3. Add Grade")
+    print("4. update grade")
+    print("5. sort grades")
+    print("6. Display Highest and Lowest grades")
+    print("7. Exit application")
+    
+
 
 def main():
     # initialize project by generating students and their grades
