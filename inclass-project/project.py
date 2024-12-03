@@ -121,8 +121,14 @@ def print_slow(input):
 
 def set_header_row(data):
     """Set the header row for the data."""
-    choice = input("Would you like to set the header row? (y/n): ")
-    choice = choice.lower()
+    # display first 5 rows of data
+    for i in range(5):
+        print(f"{i+1}. {data[i]}")
+
+    # get users choice
+    choice = input("Would you like to set the first row as the header? (y/n): ")
+    choice = choice.lower().strip()
+    # if users selects yes reset data to use first row as header
     if choice == "y":
         all_values = []
         new_data = {}
@@ -133,18 +139,47 @@ def set_header_row(data):
                 for i in headers:
                     new_data[i] = []
                 print("Header rows set.")
+                print_slow("Adding relative data...")
             else:
                 values = data[i].strip().split(",")
                 all_values.append(values)
         for i in range(len(headers)):
             for j in range(len(all_values)):
                 new_data[headers[i]].append(all_values[j][i])
+        print("Data added.")
         return new_data, True
     elif choice == "n":
-        print("Back to main menu.")
-        return data, False
+        header_choice = input("Input which row would you like to set as the header (1-5): ")
+        header_choice = header_choice.strip()
+        if header_choice.isnumeric():
+            header_choice = int(header_choice)
+            if header_choice < 1 or header_choice > 5:
+                print("Invalid choice. Back to main menu.")
+                return data, False
+            else: # user entered a valid choice
+                all_values = []
+                new_data = {}
+                print("Setting custom header row...")
+                for i in data:
+                    if i == header_choice-1:
+                        headers = data[i].strip().split(",")
+                        for i in headers:
+                            new_data[i] = []
+                        print("Header rows set.")
+                        print_slow("Adding relative data...")
+                    else:
+                        values = data[i].strip().split(",")
+                        all_values.append(values)
+                for i in range(len(headers)):
+                    for j in range(len(all_values)):
+                        new_data[headers[i]].append(all_values[j][i])
+                print("Data added.")
+                return new_data, True
+        else:
+            print("Invalid choice. Back to main menu.")
+            return data, False
     else:
-        print("Invalid choice. Please try again.")
+        print("Invalid choice. Back to main menu.")
         return data, False
 
 def display_data(data):
@@ -161,8 +196,12 @@ def handle_menu_choice(choice, data, has_header):
     elif choice == 2:
         if data is None:
             print("No data loaded. Please load a file first.")
+        elif has_header:
+            print("Header row already set.")
+            return data, has_header
         else:
             data, has_header = set_header_row(data)
+            return data, has_header
     elif choice == 3:
         display_data(data)
     elif choice == 4:
@@ -177,7 +216,7 @@ def handle_menu_choice(choice, data, has_header):
         check_values(data)
     elif choice == 9:
         print("Exiting program. Goodbye!")
-        return None, has_header
+        sys.exit()
     else:
         print("Invalid choice. Please try again.")
         return data, has_header
