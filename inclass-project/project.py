@@ -68,11 +68,14 @@ def load_file():
                 print_slow(message)
             
             try: # get data from file
+                data = {} # empty dictionary to store data
                 file = "0_input/" + file
                 with open(file, "r") as f:
                     # get data assume there are no headers in dataset
-                    data = f.readlines()
-                    return data
+                    for i, line in enumerate(f):
+                        data[i] = line.strip()
+                    print("File loaded.")
+                    return data # return data
             except:
                 log_error(f"{generate_timestamp()},Issue loading file - {file}")
                 print("Failed")
@@ -113,15 +116,40 @@ def generate_timestamp():
 def print_slow(input):
     for char in input:
         print(char, end='', flush=True)
-        time.sleep(0.1)
+        time.sleep(0.0)
     print() # move to next line
 
-def has_header():
-    user_input = input("Does the first row contain header? y/n: ")
-    if user_input.lower() == 'y':
-        return True
+def set_header_row(data):
+    """Set the header row for the data."""
+    choice = input("Would you like to set the header row? (y/n): ")
+    choice = choice.lower()
+    if choice == "y":
+        all_values = []
+        new_data = {}
+        print("Setting header row...")
+        for i in data:
+            if i == 0:
+                headers = data[i].strip().split(",")
+                for i in headers:
+                    new_data[i] = []
+                print("Header rows set.")
+            else:
+                values = data[i].strip().split(",")
+                all_values.append(values)
+        for i in range(len(headers)):
+            for j in range(len(all_values)):
+                new_data[headers[i]].append(all_values[j][i])
+        return new_data, True
+    elif choice == "n":
+        print("Back to main menu.")
+        return data, False
     else:
-        return False
+        print("Invalid choice. Please try again.")
+        return data, False
+
+def display_data(data):
+    for i in data:
+        print(data[i])
 
 
 def handle_menu_choice(choice, data, has_header):
@@ -129,11 +157,12 @@ def handle_menu_choice(choice, data, has_header):
     status."""
     if choice == 1:
         data = load_file()
+        return data, has_header
     elif choice == 2:
         if data is None:
             print("No data loaded. Please load a file first.")
         else:
-            has_header = set_header_row(data)
+            data, has_header = set_header_row(data)
     elif choice == 3:
         display_data(data)
     elif choice == 4:
@@ -166,8 +195,9 @@ def display_menu():
     print("8. Check Values")
     print("9. Exit")
 
-# function handles displaying menu and user input
+
 def handle_menu():
+    """Handle the main menu loop."""
     data = None
     has_header = False
     while True:
@@ -176,7 +206,7 @@ def handle_menu():
         choice.strip()
         if choice.isnumeric():
             choice = int(choice)
-            handle_menu_choice(choice, data, has_header)
+            data, has_header = handle_menu_choice(choice, data, has_header)
         else:
             print("Invalid choice. Please try again.")
             continue
