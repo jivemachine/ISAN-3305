@@ -1,15 +1,17 @@
 import os
 import random as r
+from datetime import datetime
 
 
 def load_file():
     # display titles of all files in 0_input directory
-    files = os.listdir("logs")
+    files = os.listdir("0_input")
 
     # make sure there are files present in folder
     if len(files) == 0:
         # exit function if no files are present
         print("No files found in 0_input directory.")
+        log_error(f"{generate_timestamp()} - No files found in 0_input directory.")
         return None
     
     # display files
@@ -18,23 +20,28 @@ def load_file():
         # make sure file is csv or else do not display
         if file.endswith(".csv"):
             count += 1
+            # title for menu only on first file
             if count == 1:
                 print("Files in 0_input directory: ")
+            
+            # print file name
             print(f"{count}. {file}")
         else:
-            # log error message that file is not a csv file
+            # print and log error message that file is not a csv file with timestamp and file name
+            print("File is not a csv file.")
+            log_error(f"{generate_timestamp()} - {file} is not a csv file.")
 
     
     # get user input for file choice
-    user_choice = int(input("Enter the number associated with the file you would like to load: "))
+    # user_choice = int(input("Enter the number associated with the file you would like to load: "))
 
     # error handling
-    while user_choice < 1 or user_choice > len(files):
-        print("Invalid choice. Please try again.")
-        user_choice = int(input("Enter the number associated with the file you would like to load: ")) 
-    # get file name
-    file = files[user_choice - 1]
-    print(file)
+    # while user_choice < 1 or user_choice > len(files):
+    #     print("Invalid choice. Please try again.")
+    #     user_choice = int(input("Enter the number associated with the file you would like to load: ")) 
+    # # get file name
+    # file = files[user_choice - 1]
+    # print(file)
 
 
     # try:
@@ -52,15 +59,19 @@ def load_file():
 
 def log_error(message):
     # log error message to error.txt file in logs folder
-    try:
-        # check if logs folder exists within directory
-        if os.path.exists('logs'):
-            with open("logs/errors.txt", "a") as f:
-                f.write(f"{message}\n")
-        else: # create logs folder if it does not exist
-            os.mkdir("logs")
-            with open("logs/errors.txt", "a") as f:
-                f.write(f"{message}\n")
+    
+    # check if logs folder exists within directory
+    if os.path.exists('logs'):
+        with open("logs/errors.txt", "a") as f:
+            f.write(f"{message}\n")
+    else: # create logs folder if it does not exist
+        os.mkdir("logs")
+        with open("logs/errors.txt", "a") as f:
+            f.write(f"{message}\n")
+
+# generates timestamp for error messages
+def generate_timestamp():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 def has_header():
     user_input = input("Does the first row contain header? y/n: ")
