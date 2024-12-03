@@ -2,19 +2,65 @@ import os
 import random as r
 
 
-def load_file(file = "Student_Depression_Dataset.csv"):
+def load_file():
+    # display titles of all files in 0_input directory
+    files = os.listdir("logs")
+
+    # make sure there are files present in folder
+    if len(files) == 0:
+        # exit function if no files are present
+        print("No files found in 0_input directory.")
+        return None
+    
+    # display files
+    for i, file in enumerate(files):
+        count = 0
+        # make sure file is csv or else do not display
+        if file.endswith(".csv"):
+            count += 1
+            if count == 1:
+                print("Files in 0_input directory: ")
+            print(f"{count}. {file}")
+        else:
+            # log error message that file is not a csv file
+
+    
+    # get user input for file choice
+    user_choice = int(input("Enter the number associated with the file you would like to load: "))
+
+    # error handling
+    while user_choice < 1 or user_choice > len(files):
+        print("Invalid choice. Please try again.")
+        user_choice = int(input("Enter the number associated with the file you would like to load: ")) 
+    # get file name
+    file = files[user_choice - 1]
+    print(file)
+
+
+    # try:
+    #     if os.path.exists(file):
+    #         with open(file, "r") as f:
+    #             # get headers
+    #             # headers = f.readline().strip().split(",")
+    #             # get data
+    #             data = f.readlines()
+    #             # convert data to list of dictionaries
+    #             # data = [dict(zip(row.strip().split(","))) for row in data]
+    #         return data
+    # except:
+    #     print("Failed")
+
+def log_error(message):
+    # log error message to error.txt file in logs folder
     try:
-        if os.path.exists(file):
-            with open(file, "r") as f:
-                # get headers
-                headers = f.readline().strip().split(",")
-                # get data
-                data = f.readlines()
-                # convert data to list of dictionaries
-                data = [dict(zip(row.strip().split(","))) for row in data]
-            return data
-    except:
-        print("Failed")
+        # check if logs folder exists within directory
+        if os.path.exists('logs'):
+            with open("logs/errors.txt", "a") as f:
+                f.write(f"{message}\n")
+        else: # create logs folder if it does not exist
+            os.mkdir("logs")
+            with open("logs/errors.txt", "a") as f:
+                f.write(f"{message}\n")
 
 def has_header():
     user_input = input("Does the first row contain header? y/n: ")
@@ -22,9 +68,6 @@ def has_header():
         return True
     else:
         return False
-
-
-data = load_file('Practice Data for Synthetic.csv')
 
 
 def handle_menu_choice(choice, data, has_header):
@@ -72,7 +115,14 @@ def display_menu():
 
 
 def main():
-    while True:
-        display_menu()
-        choice = int(input("Enter your choice: "))
-        data, has_header = handle_menu_choice(choice, data, has_header)
+    # while True:
+        load_file()
+        # display_menu()
+        # choice = int(input("Enter your choice: "))
+        # data = load_file()
+        # print(data)
+        # has_header = handle_menu_choice(choice, data, has_header)
+
+
+if __name__ == "__main__":
+    main()
