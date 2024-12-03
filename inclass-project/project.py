@@ -15,33 +15,27 @@ def load_file():
         return None
     
     # display files
+    file_count = 0 # counter for files
     for i, file in enumerate(files):
-        count = 0
         # make sure file is csv or else do not display
         if file.endswith(".csv"):
-            count += 1
+            file_count += 1
             # title for menu only on first file
-            if count == 1:
+            if file_count == 1:
                 print("Files in 0_input directory: ")
-            
             # print file name
-            print(f"{count}. {file}")
+            print(f"{file_count}. {file}")
         else:
-            # print and log error message that file is not a csv file with timestamp and file name
-            print("File is not a csv file.")
+            # log error message that file is not a csv file with timestamp and file name
             log_error(f"{generate_timestamp()} - {file} is not a csv file.")
-
+        
+    # if 0 csv files are found exit function
+    if file_count == 0:
+        print("No csv files found in 0_input directory.")
+        log_error(f"{generate_timestamp()} - No csv files found in 0_input directory.")
+        return None
     
-    # get user input for file choice
-    # user_choice = int(input("Enter the number associated with the file you would like to load: "))
-
-    # error handling
-    # while user_choice < 1 or user_choice > len(files):
-    #     print("Invalid choice. Please try again.")
-    #     user_choice = int(input("Enter the number associated with the file you would like to load: ")) 
-    # # get file name
-    # file = files[user_choice - 1]
-    # print(file)
+   
 
 
     # try:
