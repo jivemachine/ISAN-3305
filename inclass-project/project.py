@@ -302,6 +302,36 @@ def display_data(data):
     input("Press Enter to return to the main menu...")
     return data, True
 
+# function counts counts unique data values for each column within dataset
+# then the function counts occurances of those unique values 
+# then function sorts data numerically for numeric data or alphabetically for non numeric data
+# then returns the data in a sorted list of ranges for each column
+def count_for_ranges(data, has_header):
+    # handle no data
+    if data == None:
+        print("No data loaded. Please load a file first.")
+        return None, False
+    
+    # get headers and handle no header errors
+    headers = list(data.keys())
+    if not headers:
+        print("No headers found in data.")
+        return data, False
+    
+    for header in headers:
+        # get unique values within column in array
+        unique_values = list(set(data[header]))
+
+
+        # assign unique values as dictionary key
+        # and count of unqieu values as dictionary value
+        for value in unique_values:
+            value_count[value] = data[header].count(value)
+    
+    print(value_count)
+    return data, has_header
+
+
 
 def handle_menu_choice(choice, data, has_header):
     """Handle the user's menu choice. Returns the updated data and header
@@ -322,7 +352,8 @@ def handle_menu_choice(choice, data, has_header):
         data, has_header = display_data(data)
         return data, has_header
     elif choice == 4:
-        count_for_ranges(data, has_header)
+        data_ranges = count_for_ranges(data, has_header)
+        return data, has_header
     elif choice == 5:
         display_ranges(data)
     elif choice == 6:
