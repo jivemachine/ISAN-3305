@@ -182,40 +182,96 @@ def set_header_row(data):
         print("Invalid choice. Back to main menu.")
         return data, False
 
+
 def display_data(data):
-    """Displays first 50 rows of the data to the user in a table format"""
+    """Displays the data to the user in a table format with pagination.
+       Automatically truncates headers and data if too wide,
+       and limits the number of rows and columns displayed at once.
+    """
     if data is None:
         print("No data loaded. Please load a file first.")
-        return None, False
-    else:
-        # print(data)
-        for i in range(51):
-            if i == 0: # headers
-                count_headers = 0
-                for header in data:
-                    # use half of the length of header for spacing
-                    width = int(round((len(header) / 2), 0))
-                    if count_headers == 0:
-                        # add pipe at beginning of string
-                        print(f"|{' ' * width}{header}{' ' * width}", end="|")
-                        count_headers += 1
-                    else: # only put pipe at end of string
-                        print(f"{' ' * width}{header}{' ' * width}", end="|")
-                        count_headers += 1
-                # add space to separate headers from data
-                print()
-            else: # add data to table under each header
-                count_values = 0
-                for header in data:
-                    width = int(round((len(header) / 2), 0))
-                    if count_values == 0:
-                        print(f"|{' ' * width}{data[header][i-1]}{' ' * (width + len(header))}|")
-                        count_values += 1
-                    else:
-                        print(f"{' ' * width}{data[header][i-1]}{' ' * (width + len(header))}|")
-                        count_values += 1
-                print()
-        return data, True
+        # Return data and status unchanged
+        return data, False
+
+    # Extract headers and determine total rows
+    headers = list(data.keys())
+    total_rows = len(data[headers[0]]) if headers else 0
+
+    # If there are no rows
+    if total_rows == 0:
+        print("The loaded file contains no rows of data.")
+        return data, False
+
+    # Configuration
+    rows_per_page = 50        # Maximum number of rows to display per page
+    max_column_width = 25     # Maximum width for each column
+    max_headers = 9           # Maximum number of headers to display
+    if len(headers) > max_headers:
+        # If too many columns, truncate header list
+        headers = headers[:max_headers]
+        print("Warning: Too many columns. Displaying only the first 10 headers.")
+
+    # A helper function to truncate text for display
+    def truncate(text, width):
+        if len(text) > width:
+            # Show a portion from the start and end, replace the middle with "..."
+            half = (width - 3) // 2
+            return text[:half] + '...' + text[-half:]
+        return text
+
+    # Calculate column widths
+    # For each header, we want to find the max width needed by either the header or the sample data
+    # We'll sample only rows_per_page rows for width calculation.
+    sample_count = min(rows_per_page, total_rows)
+    column_widths = {}
+    for header in headers:
+        sample_values = data[header][:sample_count]
+        max_data_length = max(len(str(item)) for item in sample_values)
+        max_length = max(len(header), max_data_length)
+        # Limit to max_column_width
+        column_widths[header] = min(max_length, max_column_width)
+
+    # A function to display a given page of data
+    def display_page(start_row):
+        end_row = min(start_row + rows_per_page, total_rows)
+        # Print Headers
+        header_row = "| " + " | ".join(f"{truncate(header, column_widths[header]):{column_widths[header]}}" for header in headers) + " |"
+        separator_line = "-" * len(header_row)
+        print(header_row)
+        print(separator_line)
+
+        # Print rows
+        for i in range(start_row, end_row):
+            row_str = "| " + " | ".join(
+                f"{truncate(str(data[header][i]), column_widths[header]):{column_widths[header]}}" for header in headers
+            ) + " |"
+            print(row_str)
+
+        print(f"\nDisplaying rows {start_row+1} to {end_row} of {total_rows} total.")
+
+    # Paginate through data if it's large
+    current_start = 0
+    while current_start < total_rows:
+        # Display one page
+        display_page(current_start)
+
+        # If no more data to show, break
+        if current_start + rows_per_page >= total_rows:
+            break
+
+        # Prompt user for next action
+        user_input = input("Press Enter to see the next 50 rows, or type 'q' to quit: ").strip().lower()
+        if user_input == 'q':
+            break
+        current_start += rows_per_page
+
+    # After viewing, wait for user input to return to main menu
+    input("Press Enter to return to the main menu...")
+
+    return data, True
+        
+
+
 
 
 
