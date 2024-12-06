@@ -14,7 +14,7 @@ def load_file():
         # exit function if no files are present
         print("No files found in 0_input directory.")
         log_error(f"{generate_timestamp()},No files found in 0_input directory")
-        return None
+        return None, False
     
     # display files
     file_count = 0 # counter for files
@@ -35,7 +35,7 @@ def load_file():
     if file_count == 0:
         print("No csv files found in 0_input directory.")
         log_error(f"{generate_timestamp()},No csv files found in 0_input directory")
-        return None
+        return None, False
     # add option add end for user to quit program
     print(f"{file_count + 1}. Back to Main Menu.")
 
@@ -55,7 +55,7 @@ def load_file():
             # check if user wants to quit first
             if user_choice == file_count + 1:
                 print("Back to main menu.")
-                return None
+                return None, False
             elif user_choice < 1 or user_choice > file_count:
                 # display error message if user choice is not within range
                 print("Invalid choice. Please try again.")
@@ -75,13 +75,13 @@ def load_file():
                     for i, line in enumerate(f):
                         data[i] = line.strip()
                     print("File loaded.")
-                    return data # return data
+                    return data, False # return data no headers set
             except:
                 log_error(f"{generate_timestamp()},Issue loading file - {file}")
                 print("Failed")
                 # return None
         else: # for edge cases
-            return None 
+            return None, False
     
 
 # write error message to /logs/errors_on_input.csv
@@ -183,15 +183,47 @@ def set_header_row(data):
         return data, False
 
 def display_data(data):
-    for i in data:
-        print(data[i])
+    """Displays first 50 rows of the data to the user in a table format"""
+    if data is None:
+        print("No data loaded. Please load a file first.")
+        return None, False
+    else:
+        # print(data)
+        for i in range(51):
+            if i == 0: # headers
+                count_headers = 0
+                for header in data:
+                    # use half of the length of header for spacing
+                    width = int(round((len(header) / 2), 0))
+                    if count_headers == 0:
+                        # add pipe at beginning of string
+                        print(f"|{' ' * width}{header}{' ' * width}", end="|")
+                        count_headers += 1
+                    else: # only put pipe at end of string
+                        print(f"{' ' * width}{header}{' ' * width}", end="|")
+                        count_headers += 1
+                # add space to separate headers from data
+                print()
+            else: # add data to table under each header
+                count_values = 0
+                for header in data:
+                    width = int(round((len(header) / 2), 0))
+                    if count_values == 0:
+                        print(f"|{' ' * width}{data[header][i-1]}{' ' * (width + len(header))}|")
+                        count_values += 1
+                    else:
+                        print(f"{' ' * width}{data[header][i-1]}{' ' * (width + len(header))}|")
+                        count_values += 1
+                print()
+        return data, True
+
 
 
 def handle_menu_choice(choice, data, has_header):
     """Handle the user's menu choice. Returns the updated data and header
     status."""
     if choice == 1:
-        data = load_file()
+        data, has_header = load_file()
         return data, has_header
     elif choice == 2:
         if data is None:
@@ -203,7 +235,8 @@ def handle_menu_choice(choice, data, has_header):
             data, has_header = set_header_row(data)
             return data, has_header
     elif choice == 3:
-        display_data(data)
+        data, has_header = display_data(data)
+        return data, has_header
     elif choice == 4:
         count_for_ranges(data, has_header)
     elif choice == 5:
