@@ -306,6 +306,21 @@ def display_data(data):
 # then the function counts occurances of those unique values 
 # then function sorts data numerically for numeric data or alphabetically for non numeric data
 # then returns the data in a sorted list of ranges for each column
+# output will be a multidimensional list like this:
+#       Every dimension is a column from the dataset
+#           And every dimension beyond that is a columns of sorted data from the dataset
+#               Then every column is sorted in order numerically or alphabetically
+# [
+#     [ # column 1
+#         [12, 13, 14]
+#     ],
+#     [ # column 2
+#         ["al", "bob", "clarissa"]
+#     ]
+#     etc... 
+# ]
+#
+#
 def count_for_ranges(data, has_header):
     # handle no data
     if data == None:
@@ -317,19 +332,40 @@ def count_for_ranges(data, has_header):
     if not headers:
         print("No headers found in data.")
         return data, False
-    
-    for header in headers:
-        # get unique values within column in array
+
+    # get unque values for all values for each column
+    # sort the data alphabetically or numerically
+    # return column data as a list
+    def get_unique_values(header):
+        # get unique value for header and returns a sorted list for header
         unique_values = list(set(data[header]))
 
+        # iterate through all data in unique_values list and if all values are an instance of numeric data, sort numerically
+        def is_numeric(array_list):
+            def is_numeric_value(value):
+                try:
+                    float(value)
+                    return True
+                except ValueError:
+                    return False
 
-        # assign unique values as dictionary key
-        # and count of unqieu values as dictionary value
-        for value in unique_values:
-            value_count[value] = data[header].count(value)
-    
-    print(value_count)
-    return data, has_header
+            return all(is_numeric_value(item) for item in array_list)
+
+        if is_numeric(unique_values):
+            unique_values.sort(key=float)
+        else:
+            unique_values.sort(key=str.lower)
+        # return sorted data
+        return unique_values
+    # create output and sort data according to if data is numerically or alphabetically
+    columns = []
+    for header in headers:
+        # each unique header adds an extra empty array to columns array
+        # adds array with data from get_unqiue_values function
+        columns.append([
+            get_unique_values(header)
+        ])
+    return columns # returns sorted data
 
 
 
