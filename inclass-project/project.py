@@ -183,93 +183,124 @@ def set_header_row(data):
         return data, False
 
 
+# function displays data to user in a table format, that allows for pagination for both rows and columns
 def display_data(data):
-    """Displays the first 50 rows of data in a table format similar to pandas head(50).
-       It creates a visually appealing ASCII table.
-    """
+    # handle no data
     if data is None:
         print("No data loaded. Please load a file first.")
         return data, False
 
-    # Extract headers (keys of the dictionary)
+    # get headers and determine total rows
     headers = list(data.keys())
-
-    # If no data or headers are present
     if not headers:
-        print("No data to display.")
+        print("No headers found in data.")
         return data, False
-    
+
     total_rows = len(data[headers[0]])
+    # handle no data in file
     if total_rows == 0:
-        print("No data rows found.")
+        print("The loaded file contains no rows of data.")
         return data, False
 
-    # Configuration
-    rows_to_display = min(50, total_rows)      # Display up to 50 rows
-    max_headers = 10                           # Truncate if too many columns
-    if len(headers) > max_headers:
-        headers = headers[:max_headers]
-        print("Warning: Too many columns to display. Showing only the first 10.")
+    # config for displaying data
+    rows_per_page = 50        # Number of rows displayed at once
+    columns_per_page = 9      # Number of columns displayed at once
+    max_column_width = 25     # Maximum width for each column
 
-    # Determine column widths
-    # Width is based on the max length of the header or any of the values in the first 50 rows
-    column_widths = {}
-    for h in headers:
-        # Consider the header length and the data lengths for the rows we are displaying
-        max_data_length = max([len(str(data[h][i])) for i in range(rows_to_display)]) if rows_to_display > 0 else 0
-        column_widths[h] = max(len(h), max_data_length)
-    
-    # A helper function to construct a horizontal line based on column widths
-    def build_line():
-        parts = []
-        for h in headers:
-            parts.append('-' * (column_widths[h] + 2))  # +2 for the spaces on each side
-        return '+' + '+'.join(parts) + '+'
+    # function truncates text using width
+    def truncate(text, width):
+        if len(text) > width:
+            half = (width - 3) // 2
+            return text[:half] + '...' + text[-half:]
+        return text
 
-    # Build the header row
-    def build_header_row():
-        cells = []
-        for h in headers:
-            # Center align the header text within the column width
-            cells.append(f" {h.center(column_widths[h])} ")
-        return '|' + '|'.join(cells) + '|'
+    # function to calculates column width for specific headers
+    def compute_column_widths(sub_headers, row_start=0):
+        # sample rows to determine max width
+        sample_count = min(rows_per_page, total_rows - row_start)
+        column_widths = {}
+        # loop through headers
+        for header in sub_headers:
+            if sample_count > 0:
+                # get sample values
+                sample_values = data[header][row_start:row_start+sample_count]
+            else:
+                sample_values = []
 
-    # Build a data row given the index
-    def build_data_row(idx):
-        cells = []
-        for h in headers:
-            val = str(data[h][idx])
-            # Left align the data for readability
-            cells.append(f" {val.ljust(column_widths[h])} ")
-        return '|' + '|'.join(cells) + '|'
+            # determine max length of data
+            max_data_length = max((len(str(item)) for item in sample_values), default=0)
+            # determine max length of header
+            max_length = max(len(header), max_data_length)
 
-    # Construct the table
-    top_line = build_line()
-    header_line = build_header_row()
-    separator_line = build_line()
+            # set column width
+            column_widths[header] = min(max_length, max_column_width)
+        return column_widths # return column widths
 
-    # Print table
-    print(top_line)
-    print(header_line)
-    print(separator_line)
+    # function displays 'page' of data
+    def display_page_of_data(column_start, row_start):
+        # subset of columns and rows to display
+        col_end = min(column_start + columns_per_page, len(headers))
+        # get headers for current page
+        current_headers = headers[column_start:col_end]
 
-    for i in range(rows_to_display):
-        print(build_data_row(i))
+        # get rows to display
+        row_end = min(row_start + rows_per_page, total_rows)
+        # calculate column widths
+        column_widths = compute_column_widths(current_headers, row_start)
 
-    bottom_line = build_line()
-    print(bottom_line)
+        # print headers
+        header_row = "| " + " | ".join(
+            f"{truncate(h, column_widths[h]):{column_widths[h]}}" for h in current_headers
+        ) + " |"
+        print(header_row)
+        print("-" * len(header_row))
 
-    # If there are more rows than 50, print a note
-    if total_rows > 50:
-        print(f"\nOnly showing first 50 rows out of {total_rows} total rows.")
+        # print rows
+        for i in range(row_start, row_end):
+            row_str = "| " + " | ".join(
+                f"{truncate(str(data[h][i]), column_widths[h]):{column_widths[h]}}" for h in current_headers
+            ) + " |"
+            print(row_str)
 
-    # Wait for user input to return to the main menu
+        print(f"\nDisplaying rows {row_start+1} to {row_end} of {total_rows} total; columns {column_start+1} to {col_end} of {len(headers)} total.")
+
+    # pagination logic for columns and rows
+    column_start = 0
+    while column_start < len(headers):
+        row_start = 0
+        while row_start < total_rows:
+            display_page_of_data(column_start, row_start)
+
+            # If no more rows to show in this column set
+            if row_start + rows_per_page >= total_rows:
+                break
+
+            # Ask user to go to next set of rows or quit
+            user_input = input("Press Enter to see the next 50 rows, 'c' to change columns, or 'q' to quit: ").strip().lower()
+            if user_input == 'q':
+                # Quit entirely
+                input("Press Enter to return to the main menu...")
+                return data, True
+            elif user_input == 'c':
+                # Stop row pagination and move on to next columns
+                break
+            else:
+                # Move to next set of rows
+                row_start += rows_per_page
+
+        # Move to next set of columns if there are any
+        if column_start + columns_per_page >= len(headers):
+            # No more columns to show
+            break
+        user_input = input("Press Enter to see the next set of columns or 'q' to quit: ").strip().lower()
+        if user_input == 'q':
+            input("Press Enter to return to the main menu...")
+            return data, True
+        column_start += columns_per_page
+
+    # After finishing all columns/rows
     input("Press Enter to return to the main menu...")
     return data, True
-        
-
-
-
 
 
 def handle_menu_choice(choice, data, has_header):
