@@ -396,80 +396,97 @@ def display_ranges(data_ranges, data, has_headers):
     
     print_slow('Displaying data ranges...')
     print_slow("Data is formatted as 'Unique_value: distinct_appearances_in_dataset'")
+    
     # get header names
     headers = list(data.keys())
 
-    # display at most 50 rows of unique values for each column
-    max_display_rows = 50
-
-    # get the number of rows we need to print
-    # capped at 50
-    max_length = 0
-    for col_data in data_ranges:
-        col_length = len(col_data)
-        if col_length > max_length:
-            max_length = col_length
-    if max_length > max_display_rows:
-        max_length = max_display_rows
+    # config
+    max_display_rows = 50   # display at most 50 rows of unique values for each column
+    max_column_width = 25   # max column width to prevent overly wide columns
+    columns_per_page = 8    # number of columns to display at once
 
     # column widths
     def value_count_str(value, count):
         return f"{value}: {count}"
     
-    column_widths = []
-    for i, header in enumerate(headers):
-        # get the longest string in this column
-        longest_str_len = len(header)
-        for j, (val, cnt) in enumerate(data_ranges[i]):
-            if j >= max_length:
-                break
-            length = len(value_count_str(val, cnt))
-            if length > longest_str_len:
-                longest_str_len = length
-        column_widths.append(longest_str_len)
-
-    # function formats table cell depending on width
+    # truncate string to fit width
+    def truncate(text, width):
+        if len(text) > width:
+            #  long text will look like mcd...alds
+            half = (width - 3) // 2
+            return text[:half] + '...' + text[-half:]
+        return text
+    
     def format_cell(text, width):
+        text = truncate(text, width)
         return f"{text:<{width}}"
     
-    # print header row
-    header_row = "| " + " | ".join(
-        format_cell(header, width) for header, width in zip(headers, column_widths)
-    ) + " |"
-    print(header_row)
+    # paginating columns
+    column_start = 0
+    total_columns = len(headers)
 
-    # separator line between column headers and data
-    print("-" * len(header_row))
+    while column_start < total_columns:
+        # get the num columns to display
+        col_end = min(column_start + columns_per_page, total_columns)
+        current_headers = headers[column_start:col_end]
+        current_data_ranges = data_ranges[column_start:col_end]
+        
+        # how many rows we need to display (up to 50)
+        max_length = max((len(col_data) for col_data in current_data_ranges), default=0)
+        display_length = min(max_length, max_display_rows)
 
-    # print each row of values
-    for row_idx in range(max_length):
-        row_cells = []
-        for col_idx, header in enumerate(headers):
-            if row_idx < len(data_ranges[col_idx]):
-                val, cnt = data_ranges[col_idx][row_idx]
-                cell_str = value_count_str(val, cnt)
+        # get column widths for these columns
+        column_widths = []
+        for i, header in enumerate(current_headers):
+            longest_str_len = len(header)
+            # up to display_length values
+            for val, cnt in current_data_ranges[i][:display_length]:
+                length = len(value_count_str(val, cnt))
+                if length > longest_str_len:
+                    longest_str_len = length
+            # max col width
+            if longest_str_len > max_column_width:
+                longest_str_len = max_column_width
+            column_widths.append(longest_str_len)
+
+        # print the table
+        header_row = "| " + " | ".join(
+            format_cell(h, w) for h, w in zip(current_headers, column_widths)
+        ) + " |"
+        print(header_row)
+        print("-" * len(header_row))
+
+        # print rows
+        for row_idx in range(display_length):
+            row_cells = []
+            for col_idx, header in enumerate(current_headers):
+                col_data = current_data_ranges[col_idx]
+                if row_idx < len(col_data):
+                    val, cnt = col_data[row_idx]
+                    cell_str = value_count_str(val, cnt)
+                else:
+                    cell_str = ""
+                row_cells.append(format_cell(cell_str, column_widths[col_idx]))
+            row_line = "| " + " | ".join(row_cells) + " |"
+            print(row_line)
+        
+        print()  # \n
+
+        if col_end < total_columns:
+            # if there are more columns to display
+            user_input = input("Press 'c' to view the next set of columns, or press Enter to return to the main menu: ").strip().lower()
+            if user_input == 'c':
+                column_start += columns_per_page
+                print()  # add an extra line for readability
+                continue
             else:
-                cell_str = ""  # no val if column has fewer unique values
-            row_cells.append(format_cell(cell_str, column_widths[col_idx]))
-        row_line = "| " + " | ".join(row_cells) + " |"
-        print(row_line)
+                break
+        else:
+            # no more left
+            break
 
-    # footer message where any column with more than 50 values print a summary
-    print() # \n
-    truncated_columns = False
-    for i, header in enumerate(headers):
-        total_unique = len(data_ranges[i])
-        if total_unique > max_display_rows:
-            truncated_columns = True
-            extra_data = total_unique - max_display_rows
-            print(f"Note: '{header}' has {total_unique} unique values in total. {extra_data} additional values not displayed.")
-
-    if not truncated_columns:
-        print("All unique values for each column (up to 50) have been displayed.")
-    
-    # Wait for user input to return to main menu
-    input("\nPress Enter to return to the main menu...")
-
+    # press enter to go home
+    input("Press Enter to return to the main menu...")
     return True
 
 
