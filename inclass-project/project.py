@@ -374,13 +374,12 @@ def count_for_ranges(data):
         columns.append([
             (value, count_unique_value(value, data[header])) for value in get_unique_values(header)
         ])
-    print(columns)
     return columns # returns sorted data
 
 # function displays data from count_for_ranges function
 # for columns with more than 50 unique values only display first 50
 def display_ranges(data_ranges, data, has_headers):
-      # handle no data
+    # handle no data
     if data == None:
         print("No data loaded. Please load a file first.")
         return False
@@ -390,22 +389,88 @@ def display_ranges(data_ranges, data, has_headers):
         print("No headers found in data. Set headers for file first.")
         return False
 
+    # handle no data ranges
     if data_ranges == None:
         print("No data to display, run 'count for ranges' then try again")
         return False
     
+    print_slow('Displaying data ranges...')
+    print_slow("Data is formatted as 'Unique_value: distinct_appearances_in_dataset'")
     # get header names
     headers = list(data.keys())
 
-    # display ranges for each column
-    for i in range(len(headers)):
-        header = headers[i]
-        print(f"\n{header} has {len(data_ranges[i])} unique values:")
-        for j in range(len(data_ranges[i])):
-            if j == 50:
+    # display at most 50 rows of unique values for each column
+    max_display_rows = 50
+
+    # get the number of rows we need to print
+    # capped at 50
+    max_length = 0
+    for col_data in data_ranges:
+        col_length = len(col_data)
+        if col_length > max_length:
+            max_length = col_length
+    if max_length > max_display_rows:
+        max_length = max_display_rows
+
+    # column widths
+    def value_count_str(value, count):
+        return f"{value}: {count}"
+    
+    column_widths = []
+    for i, header in enumerate(headers):
+        # get the longest string in this column
+        longest_str_len = len(header)
+        for j, (val, cnt) in enumerate(data_ranges[i]):
+            if j >= max_length:
                 break
-            print(f"{data_ranges[i][j][0]}: {data_ranges[i][j][1]}")
-        print("\n")
+            length = len(value_count_str(val, cnt))
+            if length > longest_str_len:
+                longest_str_len = length
+        column_widths.append(longest_str_len)
+
+    # function formats table cell depending on width
+    def format_cell(text, width):
+        return f"{text:<{width}}"
+    
+    # print header row
+    header_row = "| " + " | ".join(
+        format_cell(header, width) for header, width in zip(headers, column_widths)
+    ) + " |"
+    print(header_row)
+
+    # separator line between column headers and data
+    print("-" * len(header_row))
+
+    # print each row of values
+    for row_idx in range(max_length):
+        row_cells = []
+        for col_idx, header in enumerate(headers):
+            if row_idx < len(data_ranges[col_idx]):
+                val, cnt = data_ranges[col_idx][row_idx]
+                cell_str = value_count_str(val, cnt)
+            else:
+                cell_str = ""  # no val if column has fewer unique values
+            row_cells.append(format_cell(cell_str, column_widths[col_idx]))
+        row_line = "| " + " | ".join(row_cells) + " |"
+        print(row_line)
+
+    # footer message where any column with more than 50 values print a summary
+    print() # \n
+    truncated_columns = False
+    for i, header in enumerate(headers):
+        total_unique = len(data_ranges[i])
+        if total_unique > max_display_rows:
+            truncated_columns = True
+            extra_data = total_unique - max_display_rows
+            print(f"Note: '{header}' has {total_unique} unique values in total. {extra_data} additional values not displayed.")
+
+    if not truncated_columns:
+        print("All unique values for each column (up to 50) have been displayed.")
+    
+    # new line for spacing
+    print()
+    return True
+
 
 def handle_menu_choice(choice, data, has_header, data_range=None):
     """Handle the user's menu choice. Returns the updated data and header
