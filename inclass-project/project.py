@@ -303,25 +303,25 @@ def display_data(data):
     return data, True
 
 # function counts counts unique data values for each column within dataset
-# then the function counts occurances of those unique values 
+# then the function counts occurances of those unique values
 # then function sorts data numerically for numeric data or alphabetically for non numeric data
 # then returns the data in a sorted list of ranges for each column
 # output will be a multidimensional list like this:
 #       Every dimension is a column from the dataset
 #           And every dimension beyond that is a columns of sorted data from the dataset
-#               Then every column is sorted in order numerically or alphabetically
+#               Then every column is sorted in order numerically or alphabetically as a tuple with the unique value and count
 # [
 #     [ # column 1
-#         [12, 13, 14]
+#         [(12, 1), (13, 3), (14, 5)]
 #     ],
 #     [ # column 2
-#         ["al", "bob", "clarissa"]
+#         [("al", 4), ("bob",12), ("clarissa", 1)]
 #     ]
 #     etc... 
 # ]
 #
 #
-def count_for_ranges(data, has_header):
+def count_for_ranges(data):
     # handle no data
     if data == None:
         print("No data loaded. Please load a file first.")
@@ -333,6 +333,7 @@ def count_for_ranges(data, has_header):
         print("No headers found in data.")
         return data, False
 
+    print_slow('Sorting data...')
     # get unque values for all values for each column
     # sort the data alphabetically or numerically
     # return column data as a list
@@ -357,41 +358,79 @@ def count_for_ranges(data, has_header):
             unique_values.sort(key=str.lower)
         # return sorted data
         return unique_values
+    
+    # function counts instance of each value in column
+    def count_unique_value(val, data):
+        count = 0
+        for i in range(len(data)):
+            if data[i] == val:
+                count += 1
+        return count
+    
     # create output and sort data according to if data is numerically or alphabetically
     columns = []
     for header in headers:
         # each unique header adds an extra empty array to columns array
-        # adds array with data from get_unqiue_values function
         columns.append([
-            get_unique_values(header)
+            (value, count_unique_value(value, data[header])) for value in get_unique_values(header)
         ])
+    print(columns)
     return columns # returns sorted data
 
+# function displays data from count_for_ranges function
+# for columns with more than 50 unique values only display first 50
+def display_ranges(data_ranges, data, has_headers):
+      # handle no data
+    if data == None:
+        print("No data loaded. Please load a file first.")
+        return False
 
+    # handle missing headers
+    if not has_headers:
+        print("No headers found in data. Set headers for file first.")
+        return False
 
-def handle_menu_choice(choice, data, has_header):
+    if data_ranges == None:
+        print("No data to display, run 'count for ranges' then try again")
+        return False
+    
+    # get header names
+    headers = list(data.keys())
+
+    # display ranges for each column
+    for i in range(len(headers)):
+        header = headers[i]
+        print(f"\n{header} has {len(data_ranges[i])} unique values:")
+        for j in range(len(data_ranges[i])):
+            if j == 50:
+                break
+            print(f"{data_ranges[i][j][0]}: {data_ranges[i][j][1]}")
+        print("\n")
+
+def handle_menu_choice(choice, data, has_header, data_range=None):
     """Handle the user's menu choice. Returns the updated data and header
     status."""
     if choice == 1:
         data, has_header = load_file()
-        return data, has_header
+        return data, has_header, data_range
     elif choice == 2:
         if data is None:
             print("No data loaded. Please load a file first.")
         elif has_header:
             print("Header row already set.")
-            return data, has_header
+            return data, has_header, data_range
         else:
             data, has_header = set_header_row(data)
-            return data, has_header
+            return data, has_header, data_range
     elif choice == 3:
         data, has_header = display_data(data)
-        return data, has_header
+        return data, has_header, data_range
     elif choice == 4:
-        data_ranges = count_for_ranges(data, has_header)
-        return data, has_header
+        data_range = count_for_ranges(data)
+        return data, has_header, data_range
     elif choice == 5:
-        display_ranges(data)
+        display_ranges(data_range, data, has_header)
+        return data, has_header, data_range
     elif choice == 6:
         data = roll_data(data)
     elif choice == 7:
@@ -423,13 +462,14 @@ def handle_menu():
     """Handle the main menu loop."""
     data = None
     has_header = False
+    data_range = None
     while True:
         display_menu()
         choice = input("Enter choice: ")
         choice.strip()
         if choice.isnumeric():
             choice = int(choice)
-            data, has_header = handle_menu_choice(choice, data, has_header)
+            data, has_header, data_range = handle_menu_choice(choice, data, has_header, data_range)
         else:
             print("Invalid choice. Please try again.")
             continue
