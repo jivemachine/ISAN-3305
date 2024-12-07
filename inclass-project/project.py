@@ -467,8 +467,9 @@ def display_ranges(data_ranges, data, has_headers):
     if not truncated_columns:
         print("All unique values for each column (up to 50) have been displayed.")
     
-    # new line for spacing
-    print()
+    # Wait for user input to return to main menu
+    input("\nPress Enter to return to the main menu...")
+
     return True
 
 
